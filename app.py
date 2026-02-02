@@ -8,6 +8,8 @@ import streamlit as st
 from PIL import Image
 import torch
 from transformers import CLIPProcessor, CLIPModel
+import tkinter as tk
+from tkinter import filedialog
 
 # Supported image extensions
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp"}
@@ -89,15 +91,27 @@ def main():
     st.title("🔍 FindMyPhoto")
     st.caption("Search images in a folder using natural language (CLIP)")
 
+    # Ensure session state key exists for folder path
+    if "folder_path" not in st.session_state:
+        st.session_state["folder_path"] = ""
+
     # Sidebar: folder path
     with st.sidebar:
         st.header("Settings")
-        folder_path = st.text_input(
-            "Folder path",
-            value="",
-            placeholder=r"C:\Users\You\Pictures or /home/you/photos",
-            help="Path to the folder containing images to search.",
-        )
+        if st.button("Select Folder"):
+            # Use a native folder selection dialog via tkinter
+            root = tk.Tk()
+            root.withdraw()  # Hide the main tkinter window
+            root.attributes("-topmost", True)  # Bring dialog to front
+            selected_folder = filedialog.askdirectory()
+            root.destroy()
+
+            if selected_folder:
+                st.session_state["folder_path"] = selected_folder
+
+        folder_path = st.session_state.get("folder_path", "")
+        if folder_path:
+            st.text(f"Selected folder:\n{folder_path}")
 
     # Main: search query
     search_query = st.text_input(
@@ -107,7 +121,7 @@ def main():
     )
 
     if not folder_path:
-        st.info("👈 Enter a folder path in the sidebar to get started.")
+        st.info("👈 Click 'Select Folder' in the sidebar to choose an image folder.")
         return
 
     if not Path(folder_path).is_dir():
