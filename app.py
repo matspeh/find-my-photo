@@ -26,16 +26,22 @@ def load_clip():
 
 
 def get_image_paths(folder_path: str) -> list[Path]:
-    """Return list of image file paths in folder (non-recursive)."""
+    """Return list of image file paths in folder and all subfolders (recursive)."""
+    print("get_image_paths")  # Print the name of the function
     folder = Path(folder_path)
     if not folder.is_dir():
         return []
     paths = []
-    for p in folder.iterdir():
+    visited_dirs = set()
+    for p in folder.rglob("*"):
+        parent_dir = p.parent
+        # Report entering this folder (once per folder)
+        if parent_dir not in visited_dirs:
+            print(f"Entering folder: {parent_dir}")
+            visited_dirs.add(parent_dir)
         if p.is_file() and p.suffix.lower() in IMAGE_EXTENSIONS:
             paths.append(p)
     return sorted(paths)
-
 
 def load_images(paths: list[Path], max_size: tuple[int, int] = (224, 224)) -> list[Image.Image]:
     """Load and optionally resize images. Returns list of PIL Images."""
@@ -87,6 +93,7 @@ def search_images(query: str, image_paths: list[Path], model, processor, device,
 
 
 def main():
+    print("main")  # Print the name of the function
     st.set_page_config(page_title="FindMyPhoto", page_icon="🔍", layout="wide")
     st.title("🔍 FindMyPhoto")
     st.caption("Search images in a folder using natural language (CLIP)")
