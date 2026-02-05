@@ -209,7 +209,7 @@ def index_images_in_chroma(
             metadatas=metadatas,
         )
 
-# Invoked each run by streamlit
+# Invoked each run by streamlit..
 def main():
     print("main")  # Print the name of the function
     st.set_page_config(page_title="FindMyPhoto", page_icon="🔍", layout="wide")
